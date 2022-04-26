@@ -21,7 +21,7 @@ do
   key="$1"
   case $key in
     -h|--help)
-      echo "bin/download_dependencies.sh [--gmp gmp|mpir] [--host HOST]"
+      echo "bin/download_dependencies.sh [--gmp gmp|mpir] [--host HOST] [--with-pic]"
       exit
     ;;
     --gmp)
@@ -41,8 +41,13 @@ do
       shift
       shift
     ;;
+    --pic)
+      WITH_PIC="--with-pic"
+      shift
+    ;;
   esac
 done
+
 
 # ------------------------------------------------------------------------- #
 #                                                                           #
@@ -80,7 +85,8 @@ if [ $USE_GMP = "gmp" ]; then
       --enable-fat\
       --enable-shared=yes\
       --enable-static=no\
-      --host=$HOST_ARG
+      --host=$HOST_ARG\
+      $WITH_PIC
     make -j3
     make install
   cd ..
@@ -132,13 +138,15 @@ fi
 #                                                                           #
 # ------------------------------------------------------------------------- #
 
-curl -O https://www.mpfr.org/mpfr-current/mpfr-$MPFRVER.tar.gz
+curl -O https://ftp.gnu.org/gnu/mpfr/mpfr-$MPFRVER.tar.gz
 tar xf mpfr-$MPFRVER.tar.gz
 cd mpfr-$MPFRVER
   ./configure --prefix=$PREFIX\
     --with-gmp=$PREFIX\
     --enable-shared=yes\
-    --enable-static=no
+    --enable-static=no\
+    --host=$HOST_ARG\
+    $WITH_PIC
   make -j3
   make install
 cd ..
@@ -166,10 +174,10 @@ cd ..
 #                                                                           #
 # ------------------------------------------------------------------------- #
 
-curl -O -L https://github.com/fredrik-johansson/arb/archive/refs/tags/$ARBVER.tar.gz
-mv $ARBVER.tar.gz arb-$ARBVER.tar.gz
-tar xf arb-$ARBVER.tar.gz
-cd arb-$ARBVER
+# curl -O -L https://github.com/fredrik-johansson/arb/archive/refs/tags/$ARBVER.tar.gz
+# mv $ARBVER.tar.gz arb-$ARBVER.tar.gz
+# tar xf arb-$ARBVER.tar.gz
+cd $GITHUB_WORKSPACE/arb
   ./configure --prefix=$PREFIX\
     --with-flint=$PREFIX\
     $FLINTARB_WITHGMP\
@@ -203,3 +211,4 @@ echo Arb: $ARBVER
 echo
 echo -----------------------------------------------------------------------
 echo
+
